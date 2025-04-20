@@ -313,91 +313,97 @@
   </div>
 
   <script>
-    const gallery = document.getElementById("gallery");
-    const message = document.getElementById("message");
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightbox-img");
-    const prevArrow = document.getElementById("prevArrow");
-    const nextArrow = document.getElementById("nextArrow");
+      const gallery = document.getElementById("gallery");
+      const message = document.getElementById("message");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightbox-img");
+      const prevArrow = document.getElementById("prevArrow");
+      const nextArrow = document.getElementById("nextArrow");
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "photo-wrapper";
+      let currentIndex = 0;
+      let imageUrls = [];
 
-    const img = document.createElement("img");
-    img.src = url;
+      fetch("/photos")
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.images.length > 0) {
+            message.style.display = "none";
+            imageUrls = data.images;
 
-    wrapper.appendChild(img);
-    gallery.appendChild(wrapper);
+            imageUrls.forEach((url, index) => {
+              const wrapper = document.createElement("div");
+              wrapper.className = "photo-wrapper";
 
-    let currentIndex = 0;
-    let imageUrls = [];
+              const img = document.createElement("img");
 
-    fetch("/photos")
-      .then(response => response.json())
-      .then(data => {
-        const gallery = document.getElementById('gallery');
-        if (data.success) {
-          data.images.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.classList.add('gallery-image');
-            gallery.appendChild(img);
-          });
-        } else {
-          gallery.innerHTML = "<p>Oops! Couldn't load the gallery.</p>";
+          // Optional: add image resizing via query params (if your backend supports it)
+              img.src = `${url}?width=800&height=1000&quality=70`;
+              img.loading = "lazy";
+              img.alt = `Wedding photo ${index + 1}`;
+
+              img.addEventListener("click", () => {
+                currentIndex = index;
+                openLightbox();
+              });
+
+              wrapper.appendChild(img);
+              gallery.appendChild(wrapper);
+            });
+          } else {
+            message.textContent = "No photos uploaded yet.";
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching gallery:", error);
+          message.textContent = "Oops! Couldn't load the gallery.";
+        });
+
+      function openLightbox() {
+        lightboxImg.src = imageUrls[currentIndex];
+        lightbox.classList.add("active");
       }
-    })
-    .catch(error => {
-      console.error("Error fetching gallery:", error);
-      document.getElementById('gallery').innerHTML = "<p>Oops! Couldn't load the gallery.</p>";
-    });
 
-    function openLightbox() {
-      lightboxImg.src = imageUrls[currentIndex];
-      lightbox.classList.add("active");
-    }
-
-    function closeLightbox() {
-      lightbox.classList.remove("active");
-    }
-
-    function showNext() {
-      currentIndex = (currentIndex + 1) % imageUrls.length;
-      openLightbox();
-    }
-
-    function showPrev() {
-      currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
-      openLightbox();
-    }
-
-    lightbox.addEventListener("click", (e) => {
-      if (e.target === lightbox || e.target === lightboxImg || e.target === document.querySelector('.lightbox::after')) {
-        closeLightbox();
+      function closeLightbox() {
+        lightbox.classList.remove("active");
       }
-    });
 
-    nextArrow.addEventListener("click", (e) => {
-      e.stopPropagation();
-      showNext();
-    });
+      function showNext() {
+        currentIndex = (currentIndex + 1) % imageUrls.length;
+        openLightbox();
+      }
 
-    prevArrow.addEventListener("click", (e) => {
-      e.stopPropagation();
-      showPrev();
-    });
+      function showPrev() {
+        currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
+        openLightbox();
+      }
 
-    // Optional: swipe support for mobile (left/right swipe)
-    let touchStartX = 0;
-    lightbox.addEventListener("touchstart", (e) => {
-      touchStartX = e.touches[0].clientX;
-    });
+      lightbox.addEventListener("click", (e) => {
+        if (e.target === lightbox || e.target === lightboxImg) {
+          closeLightbox();
+        }
+      });
 
-    lightbox.addEventListener("touchend", (e) => {
-      const touchEndX = e.changedTouches[0].clientX;
-      if (touchEndX - touchStartX > 50) showPrev();
-      if (touchEndX - touchStartX < -50) showNext();
-    });
+      nextArrow.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showNext();
+      });
+
+      prevArrow.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showPrev();
+      });
+
+  // Swipe support
+      let touchStartX = 0;
+      lightbox.addEventListener("touchstart", (e) => {
+        touchStartX = e.touches[0].clientX;
+      });
+
+      lightbox.addEventListener("touchend", (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        if (touchEndX - touchStartX > 50) showPrev();
+        if (touchEndX - touchStartX < -50) showNext();
+      });
   </script>
 
   <script>
