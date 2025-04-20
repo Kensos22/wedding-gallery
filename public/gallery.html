@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wedding Gallery</title>
+
+  <!-- Google Font: Handwritten -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #f5f1ea;
+      color: #4a3f35;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #bda87f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+
+    .back-button:hover {
+      background-color: #a88c5a;
+    }
+
+    .monogram {
+      font-family: 'Great Vibes', cursive;
+      text-align: center;
+      font-size: 3rem;
+      color: #bda87f;
+      margin-bottom: 4px;
+    }
+
+    .date {
+      text-align: center;
+      font-size: 1rem;
+      color: #a69787;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 40px;
+      color: #6b5e4f;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 10px;
+    }
+
+    .photo-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fdfaf3, #f5efe4);
+      border: 1px solid #d6c6a9;
+      box-shadow: 0 6px 16px rgba(104, 85, 68, 0.12);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      max-width: 100%;
+    }
+
+    .photo-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .photo-wrapper:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 28px rgba(104, 85, 68, 0.2);
+    }
+
+    .message {
+      text-align: center;
+      font-size: 1.1rem;
+      color: #8e7d6c;
+      margin-top: 60px;
+    }
+
+    /* Lightbox styles */
+    .lightbox {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .lightbox.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    }
+
+    .lightbox::after {
+      content: "×";
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      font-size: 2.5rem;
+      color: white;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 3rem;
+      color: white;
+      background: rgba(0,0,0,0.3);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .arrow.left {
+      left: 40px;
+    }
+
+    .arrow.right {
+      right: 40px;
+    }
+
+    .arrow:hover {
+      background: rgba(0,0,0,0.5);
+    }
+
+    @media (max-width: 600px) {
+      .arrow {
+        font-size: 2.2rem;
+        padding: 6px 14px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .gallery {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+    .photo-wrapper {
+      max-width: 100%;
+      aspect-ratio: 4 / 5;
+    }
+
+    h1, .monogram {
+      font-size: 1.8rem;
+    }
+
+    .arrow {
+      font-size: 2.2rem;
+      padding: 8px 14px;
+    }
+}
+
+  .theme-toggle {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .theme-toggle label {
+  display: inline-flex;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #6b5e4f;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .theme-toggle input {
+    display: none;
+  }
+
+  .theme-toggle .slider {
+    width: 40px;
+    height: 20px;
+    background-color: #d8cbb5;
+    border-radius: 20px;
+    position: relative;
+    transition: background-color 0.3s ease;
+  }
+
+  .theme-toggle .slider::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+  }
+
+  .theme-toggle input:checked + .slider {
+    background-color: #7b6d57;
+  }
+
+  .theme-toggle input:checked + .slider::before {
+    transform: translateX(18px);
+  }
+
+/* Dark mode styles */
+  body.dark-mode {
+    background-color: #1c1813;
+    color: #f1e9d8;
+  }
+
+  body.dark-mode .monogram {
+    color: #e1cda1;
+  }
+
+  body.dark-mode .date {
+    color: #c8b79a;
+  }
+
+  body.dark-mode h1 {
+    color: #e7dcc8;
+  }
+
+  body.dark-mode .photo-wrapper {
+    background: linear-gradient(135deg, #2c261f, #1f1a15);
+    border-color: #3e362f;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  }
+
+  body.dark-mode .message {
+    color: #d9ccb6;
+  }
+
+  body.dark-mode .theme-toggle label {
+    color: #e0d3be;
+  }
+
+  </style>
+</head>
+
+<body>
+
+  <a href="index.html">
+    <button class="back-button">Back</button>
+  </a>
+
+  <div class="monogram">Ramil & Alex</div>
+  <div class="date">04.24.25</div>
+
+  <div class="theme-toggle">
+    <label>
+      <input type="checkbox" id="toggleTheme">
+      <span class="slider"></span> Toggle Dark Mode
+    </label>
+  </div>
+
+
+  <div class="gallery" id="gallery"></div>
+  <div class="message" id="message">Loading photos...</div>
+
+  <!-- Lightbox viewer -->
+  <div class="lightbox" id="lightbox">
+    <div class="arrow left" id="prevArrow">&#10094;</div>
+    <img id="lightbox-img" src="" alt="Full Photo">
+    <div class="arrow right" id="nextArrow">&#10095;</div>
+  </div>
+
+  <script>
+    const gallery = document.getElementById("gallery");
+    const message = document.getElementById("message");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const prevArrow = document.getElementById("prevArrow");
+    const nextArrow = document.getElementById("nextArrow");
+
+    let currentIndex = 0;
+    let imageUrls = [];
+
+    fetch("http://localhost:5000/photos")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.images.length > 0) {
+          imageUrls = data.images;
+          message.style.display = "none";
+
+          data.images.forEach((url, index) => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "photo-wrapper";
+            
+            const img = document.createElement("img");
+            img.src = url;
+
+            wrapper.appendChild(img);
+            gallery.appendChild(wrapper);
+
+            wrapper.addEventListener("click", () => {
+              currentIndex = index;
+              openLightbox();
+            });
+          });
+        } else {
+          message.textContent = "No photos uploaded yet.";
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        message.textContent = "Oops! Couldn't load the gallery.";
+      });
+
+    function openLightbox() {
+      lightboxImg.src = imageUrls[currentIndex];
+      lightbox.classList.add("active");
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("active");
+    }
+
+    function showNext() {
+      currentIndex = (currentIndex + 1) % imageUrls.length;
+      openLightbox();
+    }
+
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
+      openLightbox();
+    }
+
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox || e.target === lightboxImg || e.target === document.querySelector('.lightbox::after')) {
+        closeLightbox();
+      }
+    });
+
+    nextArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showNext();
+    });
+
+    prevArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showPrev();
+    });
+
+    // Optional: swipe support for mobile (left/right swipe)
+    let touchStartX = 0;
+    lightbox.addEventListener("touchstart", (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    lightbox.addEventListener("touchend", (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      if (touchEndX - touchStartX > 50) showPrev();
+      if (touchEndX - touchStartX < -50) showNext();
+    });
+  </script>
+
+  <script>
+    const toggle = document.getElementById("toggleTheme");
+
+  // Load theme from localStorage
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+      toggle.checked = true;
+    }
+
+    toggle.addEventListener("change", () => {
+      if (toggle.checked) {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+      }
+    });
+  </script>
+
+</body>
+</html>

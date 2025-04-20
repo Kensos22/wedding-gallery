@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Wedding Photo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Basic reset and styling */
+    body {
+      font-family: sans-serif;
+      background: #fff8f0;
+      margin: 0;
+      height: 100vh; /* Full viewport height */
+      display: flex;
+      justify-content: center; /* Horizontally center */
+      align-items: center; /* Vertically center */
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #cc3366;
+      margin-bottom: 1rem;
+    }
+    input[type="file"] {
+      margin: 1rem 0;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #cc3366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #message {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #cc3366;
+    }
+    /* Optional: Add a border around the content */
+    .container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px; /* Limit the width */
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #cc3366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>📸 Upload a Photo for the Bride & Groom</h1>
+    <input type="file" id="fileInput" accept="image/*" />
+    <br>
+    <button id="uploadBtn">Upload</button>
+    <p id="message"></p>
+
+    <button class="gallery-button" onclick="window.location.href='gallery.html'">Go to Gallery</button>
+  </div>
+
+  <script>
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        document.getElementById('message').innerText = "Please select a photo first!";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "wedding_photos");
+
+      try {
+        const res = await fetch("https://api.cloudinary.com/v1_1/dxwtbpog2/image/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.secure_url) {
+          document.getElementById('message').innerText = "🎉 Photo uploaded successfully!";
+          fileInput.value = "";
+        } else {
+          throw new Error("Upload failed: " + JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        document.getElementById('message').innerText = "❌ Something went wrong during upload.";
+      }
+    });
+  </script>
+
+</body>
+</html>
