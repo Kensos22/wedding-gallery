@@ -309,26 +309,32 @@
   }
 
   .spacer {
-    height: 250px;
+    height: 20px;
   }
 
   .img-container {
-    text-align: center;
-    margin-top: 20px;
-  }
+      margin-bottom: -10px; /* brings image closer to text */
+    }
 
   .monogram-img {
-    max-width: 120px;
+    max-width: 100px;
     height: auto;
-    margin-bottom: 10px;
+    display: block;
+    margin: 0 auto;
+    padding: 0;
   }
 
   @media (max-width: 600px) {
     .monogram-img {
-      max-width: 80px;
+      max-width: 70px;
+      margin-bottom: -6px;
+    }
+
+    .monogram {
+      font-size: 24px;
     }
   }
-
+  
   </style>
 </head>
 
@@ -339,7 +345,7 @@
   </a>
 
   <div class="img-container">
-    <img srcF:\HTML Projects\KuyaRamilWedding\wedding-website-backend\images\ARMonogram.png" alt="ARMonogram" class="monogram-img" >
+    <img src="images/ARMonogram.png" alt="ARMonogram" class="monogram-img" >
   </div>
   <div class="spacer"></div>
   <div class="monogram">Alex & Ramil</div>
