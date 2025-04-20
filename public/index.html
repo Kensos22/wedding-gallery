@@ -93,10 +93,11 @@
 <body>
 
   <div class="container">
-    <h1>📸 Upload a Photo for the Bride & Groom</h1>
+    <h1>📸 Share a Photo for the Bride & Groom</h1>
     <input type="file" id="fileInput" accept="image/*">
     <br>
     <button id="uploadBtn">Upload</button>
+    <button id="galleryBtn" style="margin-top: 10px; background-color: #5bc0de;">Gallery</button>
 
     <!-- Progress Bar Section -->
     <div class="progress-container" id="progressContainer">
@@ -109,55 +110,46 @@
   </div>
 
   <script>
+    // Upload logic (unchanged)
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const fileInput = document.getElementById('fileInput');
       const file = fileInput.files[0];
       const message = document.getElementById('message');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
-
+  
       if (!file) {
         message.textContent = 'Please select a photo first!';
         return;
       }
-
-      // Clear any previous message
+  
       message.textContent = '';
-
-      // Prepare form data
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "wedding_photos"); 
-
-      // Show progress bar and reset its width
+      formData.append("upload_preset", "wedding_photos");
+  
       progressContainer.style.display = 'block';
       progressBar.style.width = '0%';
-
-      // Create an XMLHttpRequest to track upload progress
+  
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "https://api.cloudinary.com/v1_1/dxwtbpog2/image/upload");
-
-      // Update progress bar on progress events
+  
       xhr.upload.addEventListener("progress", function(e) {
         if (e.lengthComputable) {
           const percentComplete = (e.loaded / e.total) * 100;
           progressBar.style.width = percentComplete + '%';
         }
       });
-
+  
       xhr.onload = function() {
         if (xhr.status === 200) {
           const data = JSON.parse(xhr.responseText);
           if (data.secure_url) {
             message.textContent = "🎉 Photo uploaded successfully!";
             fileInput.value = "";
-            
-            // Hide progress bar after a short delay
             setTimeout(() => {
               progressContainer.style.display = 'none';
             }, 500);
-
-            // Remove the success message after 3 seconds
             setTimeout(() => {
               message.textContent = "";
             }, 3000);
@@ -168,15 +160,21 @@
           message.textContent = "❌ Something went wrong during upload.";
         }
       };
-
+  
       xhr.onerror = function() {
         message.textContent = "❌ Something went wrong during upload.";
         progressContainer.style.display = 'none';
       };
-
+  
       xhr.send(formData);
     });
+  
+    // Handle gallery button click
+    document.getElementById('galleryBtn').addEventListener('click', function() {
+      window.location.href = 'gallery.html';
+    });
   </script>
+  
 
 </body>
 </html>
