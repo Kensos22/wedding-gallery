@@ -4,106 +4,177 @@
   <meta charset="UTF-8">
   <title>Upload Wedding Photo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Optionally include a modern Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* Basic reset and styling */
-    body {
-      font-family: sans-serif;
-      background: #fff8f0;
+    /* Basic Reset */
+    * {
       margin: 0;
-      height: 100vh; /* Full viewport height */
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
       display: flex;
-      justify-content: center; /* Horizontally center */
-      align-items: center; /* Vertically center */
-      text-align: center;
-      padding: 2rem;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
     }
-    h1 {
-      color: #cc3366;
-      margin-bottom: 1rem;
-    }
-    input[type="file"] {
-      margin: 1rem 0;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #cc3366;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    #message {
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #cc3366;
-    }
-    /* Optional: Add a border around the content */
+
     .container {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      padding: 40px;
       width: 100%;
-      max-width: 400px; /* Limit the width */
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #d9534f;
+      font-size: 1.8rem;
+    }
+
+    input[type="file"] {
+      margin: 20px 0;
+      font-size: 1rem;
     }
 
     button {
-      padding: 10px 20px;
-      background-color: #cc3366;
-      color: white;
       border: none;
+      outline: none;
+      background-color: #d9534f;
+      color: white;
+      padding: 10px 20px;
       border-radius: 5px;
-      cursor: pointer;
       font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-    
+
+    button:hover {
+      background-color: #c9302c;
+    }
+
+    .progress-container {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .progress-wrapper {
+      width: 100%;
+      height: 10px;
+      background: #f1f1f1;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #d9534f;
+      border-radius: 5px;
+      transition: width 0.3s ease;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #333;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
     <h1>📸 Upload a Photo for the Bride & Groom</h1>
-    <input type="file" id="fileInput" accept="image/*" />
+    <input type="file" id="fileInput" accept="image/*">
     <br>
     <button id="uploadBtn">Upload</button>
-    <p id="message"></p>
 
-    <button class="gallery-button" onclick="window.location.href='gallery.html'">Go to Gallery</button>
+    <!-- Progress Bar Section -->
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-wrapper">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <p id="message"></p>
   </div>
 
   <script>
-    document.getElementById('uploadBtn').addEventListener('click', async () => {
+    document.getElementById('uploadBtn').addEventListener('click', function() {
       const fileInput = document.getElementById('fileInput');
       const file = fileInput.files[0];
+      const message = document.getElementById('message');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
 
       if (!file) {
-        document.getElementById('message').innerText = "Please select a photo first!";
+        message.textContent = 'Please select a photo first!';
         return;
       }
 
+      // Clear any previous message
+      message.textContent = '';
+
+      // Prepare form data
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "wedding_photos");
+      formData.append("upload_preset", "wedding_photos"); 
 
-      try {
-        const res = await fetch("https://api.cloudinary.com/v1_1/dxwtbpog2/image/upload", {
-          method: "POST",
-          body: formData
-        });
+      // Show progress bar and reset its width
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
 
-        const data = await res.json();
+      // Create an XMLHttpRequest to track upload progress
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "https://api.cloudinary.com/v1_1/dxwtbpog2/image/upload");
 
-        if (data.secure_url) {
-          document.getElementById('message').innerText = "🎉 Photo uploaded successfully!";
-          fileInput.value = "";
-        } else {
-          throw new Error("Upload failed: " + JSON.stringify(data));
+      // Update progress bar on progress events
+      xhr.upload.addEventListener("progress", function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressBar.style.width = percentComplete + '%';
         }
-      } catch (err) {
-        console.error("Upload error:", err);
-        document.getElementById('message').innerText = "❌ Something went wrong during upload.";
-      }
+      });
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          if (data.secure_url) {
+            message.textContent = "🎉 Photo uploaded successfully!";
+            fileInput.value = "";
+            
+            // Hide progress bar after a short delay
+            setTimeout(() => {
+              progressContainer.style.display = 'none';
+            }, 500);
+
+            // Remove the success message after 3 seconds
+            setTimeout(() => {
+              message.textContent = "";
+            }, 3000);
+          } else {
+            message.textContent = "❌ Upload failed.";
+          }
+        } else {
+          message.textContent = "❌ Something went wrong during upload.";
+        }
+      };
+
+      xhr.onerror = function() {
+        message.textContent = "❌ Something went wrong during upload.";
+        progressContainer.style.display = 'none';
+      };
+
+      xhr.send(formData);
     });
   </script>
 
