@@ -321,36 +321,25 @@
     let currentIndex = 0;
     let imageUrls = [];
 
-    fetch("http://localhost:5000/photos")
-      .then(res => res.json())
+    fetch("/photos")
+      .then(response => response.json())
       .then(data => {
-        if (data.success && data.images.length > 0) {
-          imageUrls = data.images;
-          message.style.display = "none";
-
-          data.images.forEach((url, index) => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "photo-wrapper";
-            
-            const img = document.createElement("img");
+        const gallery = document.getElementById('gallery');
+        if (data.success) {
+          data.images.forEach(url => {
+            const img = document.createElement('img');
             img.src = url;
-
-            wrapper.appendChild(img);
-            gallery.appendChild(wrapper);
-
-            wrapper.addEventListener("click", () => {
-              currentIndex = index;
-              openLightbox();
-            });
+            img.classList.add('gallery-image');
+            gallery.appendChild(img);
           });
         } else {
-          message.textContent = "No photos uploaded yet.";
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        message.textContent = "Oops! Couldn't load the gallery.";
-      });
+          gallery.innerHTML = "<p>Oops! Couldn't load the gallery.</p>";
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching gallery:", error);
+      document.getElementById('gallery').innerHTML = "<p>Oops! Couldn't load the gallery.</p>";
+    });
 
     function openLightbox() {
       lightboxImg.src = imageUrls[currentIndex];
