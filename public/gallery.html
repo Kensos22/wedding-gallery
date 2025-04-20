@@ -308,16 +308,41 @@
     color: #e0d3be;
   }
 
+  .spacer {
+    height: 250px;
+  }
+
+  .img-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .monogram-img {
+    max-width: 120px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .monogram-img {
+      max-width: 80px;
+    }
+  }
+
   </style>
 </head>
 
 <body>
-
+  
   <a href="index.html">
     <button class="back-button">Back</button>
   </a>
 
-  <div class="monogram">Ramil & Alex</div>
+  <div class="img-container">
+    <img srcF:\HTML Projects\KuyaRamilWedding\wedding-website-backend\images\ARMonogram.png" alt="ARMonogram" class="monogram-img" >
+  </div>
+  <div class="spacer"></div>
+  <div class="monogram">Alex & Ramil</div>
   <div class="date">04.24.25</div>
 
   <div class="theme-toggle">
