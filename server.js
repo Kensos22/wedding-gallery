@@ -21,20 +21,22 @@ app.get("/photos", async (req, res) => {
       type: "upload",
       max_results: 20,
       sort_by: [{ created_at: "desc" }],
-      context: true  // ✅ this makes sure Cloudinary includes context data
+      prefix: "", // optional: restrict to specific folder
+      context: true // enable metadata fetch
     });
 
-    const imageData = result.resources.map((image) => ({
+    const images = result.resources.map((image) => ({
       url: image.secure_url,
-      uploader: image.context?.custom?.uploader || "Unknown"
+      username: image.context?.custom?.username || "Unknown"
     }));
 
-    res.json({ success: true, images: imageData });
+    res.json({ success: true, images });
   } catch (err) {
     console.error("Error fetching images from Cloudinary:", err);
     res.status(500).json({ success: false, message: "Error fetching images" });
   }
 });
+
 
 // Serve static files (like your `gallery.html`)
 app.use(express.static('public'));
