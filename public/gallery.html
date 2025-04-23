@@ -197,6 +197,26 @@
       aspect-ratio: 4 / 5;
     }
 
+    .photo-wrapper .username {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 400;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    body.dark-mode .photo-wrapper .username {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fcefdc;
+    }
+
+
     h1, .monogram {
       font-size: 1.8rem;
     }
@@ -443,7 +463,8 @@
             // Create a username element to display the user who uploaded the photo
             const usernameElement = document.createElement("div");
             usernameElement.className = "username";
-            usernameElement.textContent = `Uploaded by: ${photoData.username}`;
+            usernameElement.textContent = `${photoData.username}`;
+
   
             wrapper.appendChild(img);
             wrapper.appendChild(usernameElement);
