@@ -180,17 +180,27 @@
 
   <script>
     // Handle username input
+    function isValidUsername(username) {
+      const usernameRegex = /^[a-zA-Z._]{3,15}$/; // Only letters, dot, underscore, 3–15 chars
+      return usernameRegex.test(username);
+    }
+
     document.getElementById('setUsernameBtn').addEventListener('click', function() {
-      const username = document.getElementById('username').value.trim();
-      if (username) {
+      const usernameInput = document.getElementById('username');
+      const username = usernameInput.value.trim();
+
+      if (!username) {
+        alert('Please enter a username.');
+      } else if (!isValidUsername(username)) {
+        alert('❌ Invalid username.\n- Only letters, periods, and underscores allowed.\n- No numbers or spaces.\n- 3 to 15 characters long.');
+        usernameInput.focus();
+      } else {
         localStorage.setItem('username', username);  // Save username in localStorage
         document.getElementById('usernameContainer').style.display = 'none';  // Hide the username prompt
         document.getElementById('uploadContainer').style.display = 'block';  // Show the upload container
-      } else {
-        alert('Please enter a valid username!');
       }
     });
-
+    
     // Upload logic
     document.getElementById('uploadBtn').addEventListener('click', function() {
       const fileInput = document.getElementById('fileInput');
