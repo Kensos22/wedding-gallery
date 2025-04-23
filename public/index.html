@@ -214,7 +214,7 @@
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "wedding_photos");
-      formData.append("username", username);  // Add username to form data
+      formData.append("context", `uploader=${username}`);  // Add username to form data
 
       progressContainer.style.display = 'block';
       progressBar.style.width = '0%';
