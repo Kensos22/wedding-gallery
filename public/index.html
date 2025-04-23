@@ -44,9 +44,13 @@
       color: #7d6c5f;
     }
 
-    input[type="file"] {
+    input[type="file"], input[type="text"] {
       margin: 20px 0;
       font-size: 1rem;
+      padding: 10px;
+      width: 80%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
 
     button {
@@ -149,32 +153,43 @@
 
   <div class="container">
     <h1>📸 Share a Photo for the Bride & Groom</h1>
-    <input type="file" id="fileInput" accept="image/*">
-    <br>
-    <button id="uploadBtn">Upload</button>
-    <button id="galleryBtn">Gallery</button>
 
-    <div class="progress-container" id="progressContainer">
-      <div class="progress-wrapper">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
+    <!-- Username input -->
+    <div id="usernameContainer">
+      <label for="username">Enter your username:</label>
+      <input type="text" id="username" placeholder="Your Name" required>
+      <button id="setUsernameBtn">Set Username</button>
     </div>
 
-    <p id="message"></p>
+    <!-- File input and upload buttons, hidden initially -->
+    <div id="uploadContainer" style="display:none;">
+      <input type="file" id="fileInput" accept="image/*">
+      <br>
+      <button id="uploadBtn">Upload</button>
+      <button id="galleryBtn">Gallery</button>
+
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-wrapper">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <p id="message"></p>
+    </div>
   </div>
 
   <script>
-    // Remove falling leaves
-
-    // Floating stars
-    for (let i = 0; i < 30; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      star.style.left = `${Math.random() * 100}vw`;
-      star.style.animationDuration = `${10 + Math.random() * 10}s`;
-      star.style.animationDelay = `${Math.random() * 20}s`;
-      document.body.appendChild(star);
-    }
+    // Handle username input
+    document.getElementById('setUsernameBtn').addEventListener('click', function() {
+      const username = document.getElementById('username').value.trim();
+      if (username) {
+        localStorage.setItem('username', username);  // Save username in localStorage
+        document.getElementById('usernameContainer').style.display = 'none';  // Hide the username prompt
+        document.getElementById('uploadContainer').style.display = 'block';  // Show the upload container
+      } else {
+        alert('Please enter a valid username!');
+      }
+    });
 
     // Upload logic
     document.getElementById('uploadBtn').addEventListener('click', function() {
@@ -189,10 +204,17 @@
         return;
       }
 
+      const username = localStorage.getItem('username');  // Get the username from localStorage
+      if (!username) {
+        message.textContent = 'Username not set! Please set your username first.';
+        return;
+      }
+
       message.textContent = '';
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "wedding_photos");
+      formData.append("username", username);  // Add username to form data
 
       progressContainer.style.display = 'block';
       progressBar.style.width = '0%';
@@ -256,13 +278,9 @@
       }
       isPlaying = !isPlaying;
     });
-    
+
     window.addEventListener('beforeunload', () => {
       localStorage.setItem('audioTime', audio.currentTime);
-    });
-
-    document.getElementById('galleryBtn').addEventListener('click', function() {
-      window.location.href = 'gallery.html';
     });
 
   </script>

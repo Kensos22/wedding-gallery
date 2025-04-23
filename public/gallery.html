@@ -359,6 +359,14 @@
     margin-top: 10px;
   }
 
+  .username {
+    text-align: center;
+    font-size: 1rem;
+    color: #6b5e4f;
+    margin-top: 8px;
+    font-weight: 400;
+  }
+
 
   </style>
 </head>
@@ -377,6 +385,8 @@
   <div class="date">04.24.25</div>
 
   <div class="scroll-hint">Scroll to view more memories ↓</div>
+
+  <div class="username"></div>
 
   <div class="theme-toggle">
     <label>
@@ -397,99 +407,106 @@
   </div>
 
   <script>
-      const gallery = document.getElementById("gallery");
-      const message = document.getElementById("message");
-      const lightbox = document.getElementById("lightbox");
-      const lightboxImg = document.getElementById("lightbox-img");
-      const prevArrow = document.getElementById("prevArrow");
-      const nextArrow = document.getElementById("nextArrow");
-
-      let currentIndex = 0;
-      let imageUrls = [];
-
-      fetch("/photos")
-        .then(response => response.json())
-        .then(data => {
-          if (data.success && data.images.length > 0) {
-            message.style.display = "none";
-            imageUrls = data.images;
-
-            imageUrls.forEach((url, index) => {
-              const wrapper = document.createElement("div");
-              wrapper.className = "photo-wrapper";
-
-              const img = document.createElement("img");
-
-          // Optional: add image resizing via query params (if your backend supports it)
-              img.src = `${url}?width=800&height=1000&quality=70`;
-              img.loading = "lazy";
-              img.alt = `Wedding photo ${index + 1}`;
-
-              img.addEventListener("click", () => {
-                currentIndex = index;
-                openLightbox();
-              });
-
-              wrapper.appendChild(img);
-              gallery.appendChild(wrapper);
+    const gallery = document.getElementById("gallery");
+    const message = document.getElementById("message");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const prevArrow = document.getElementById("prevArrow");
+    const nextArrow = document.getElementById("nextArrow");
+  
+    let currentIndex = 0;
+    let imageUrls = [];
+  
+    fetch("/photos")
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.images.length > 0) {
+          message.style.display = "none";
+          imageUrls = data.images;
+  
+          imageUrls.forEach((photoData, index) => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "photo-wrapper";
+  
+            const img = document.createElement("img");
+  
+            // Optional: add image resizing via query params (if your backend supports it)
+            img.src = `${photoData.url}?width=800&height=1000&quality=70`;
+            img.loading = "lazy";
+            img.alt = `Wedding photo ${index + 1}`;
+  
+            img.addEventListener("click", () => {
+              currentIndex = index;
+              openLightbox();
             });
-          } else {
-            message.textContent = "No photos uploaded yet.";
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching gallery:", error);
-          message.textContent = "Oops! Couldn't load the gallery.";
-        });
-
-      function openLightbox() {
-        lightboxImg.src = imageUrls[currentIndex];
-        lightbox.classList.add("active");
-      }
-
-      function closeLightbox() {
-        lightbox.classList.remove("active");
-      }
-
-      function showNext() {
-        currentIndex = (currentIndex + 1) % imageUrls.length;
-        openLightbox();
-      }
-
-      function showPrev() {
-        currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
-        openLightbox();
-      }
-
-      lightbox.addEventListener("click", (e) => {
-        if (e.target === lightbox || e.target === lightboxImg) {
-          closeLightbox();
+  
+            // Create a username element to display the user who uploaded the photo
+            const usernameElement = document.createElement("div");
+            usernameElement.className = "username";
+            usernameElement.textContent = `Uploaded by: ${photoData.username}`;
+  
+            wrapper.appendChild(img);
+            wrapper.appendChild(usernameElement);
+            gallery.appendChild(wrapper);
+          });
+        } else {
+          message.textContent = "No photos uploaded yet.";
         }
+      })
+      .catch(error => {
+        console.error("Error fetching gallery:", error);
+        message.textContent = "Oops! Couldn't load the gallery.";
       });
-
-      nextArrow.addEventListener("click", (e) => {
-        e.stopPropagation();
-        showNext();
-      });
-
-      prevArrow.addEventListener("click", (e) => {
-        e.stopPropagation();
-        showPrev();
-      });
-
-  // Swipe support
-      let touchStartX = 0;
-      lightbox.addEventListener("touchstart", (e) => {
-        touchStartX = e.touches[0].clientX;
-      });
-
-      lightbox.addEventListener("touchend", (e) => {
-        const touchEndX = e.changedTouches[0].clientX;
-        if (touchEndX - touchStartX > 50) showPrev();
-        if (touchEndX - touchStartX < -50) showNext();
-      });
-
+  
+    function openLightbox() {
+      lightboxImg.src = imageUrls[currentIndex].url;
+      lightbox.classList.add("active");
+    }
+  
+    function closeLightbox() {
+      lightbox.classList.remove("active");
+    }
+  
+    function showNext() {
+      currentIndex = (currentIndex + 1) % imageUrls.length;
+      openLightbox();
+    }
+  
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
+      openLightbox();
+    }
+  
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox || e.target === lightboxImg) {
+        closeLightbox();
+      }
+    });
+  
+    nextArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showNext();
+    });
+  
+    prevArrow.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showPrev();
+    });
+  
+    // Swipe support
+    let touchStartX = 0;
+    lightbox.addEventListener("touchstart", (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+  
+    lightbox.addEventListener("touchend", (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      if (touchEndX - touchStartX > 50) showPrev();
+      if (touchEndX - touchStartX < -50) showNext();
+    });
+  
   </script>
+  
 
   <script>
     const toggle = document.getElementById("toggleTheme");
