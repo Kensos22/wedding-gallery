@@ -21,15 +21,15 @@ app.get("/photos", async (req, res) => {
       type: "upload",
       max_results: 20,
       sort_by: [{ created_at: "desc" }],
-      context: true
+      context: true  // ✅ this makes sure Cloudinary includes context data
     });
 
-    const images = result.resources.map((image) => ({
+    const imageData = result.resources.map((image) => ({
       url: image.secure_url,
       uploader: image.context?.custom?.uploader || "Unknown"
     }));
 
-    res.json({ success: true, images });
+    res.json({ success: true, images: imageData });
   } catch (err) {
     console.error("Error fetching images from Cloudinary:", err);
     res.status(500).json({ success: false, message: "Error fetching images" });
