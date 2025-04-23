@@ -14,17 +14,22 @@ cloudinary.config({
   api_secret: "IwNjnmVUBti4QSBgGaK4B6mWS2w", // Replace with your Cloudinary API secret
 });
 
-// Endpoint to get recent images
+// Endpoint to get recent images with uploader info
 app.get("/photos", async (req, res) => {
   try {
     const result = await cloudinary.api.resources({
       type: "upload",
       max_results: 20,
-      sort_by: [{ created_at: "desc" }]
+      sort_by: [{ created_at: "desc" }],
+      context: true
     });
 
-    const imageUrls = result.resources.map((image) => image.secure_url);
-    res.json({ success: true, images: imageUrls });
+    const images = result.resources.map((image) => ({
+      url: image.secure_url,
+      uploader: image.context?.custom?.uploader || "Unknown"
+    }));
+
+    res.json({ success: true, images });
   } catch (err) {
     console.error("Error fetching images from Cloudinary:", err);
     res.status(500).json({ success: false, message: "Error fetching images" });
